@@ -16,7 +16,7 @@ public class Main {
 
         double carrotGrowthProbability = 0.6;
         double rabbitSpawnProbability = 0.1;
-        boolean continueSimulation = false;
+        boolean shouldContinue = false;
 
         for (int i = 2; i < args.length; i++) {
             if (args[i].equals("-c")) {
@@ -38,11 +38,12 @@ public class Main {
                 }
                 i++;
             } else if (args[i].equals("--continue")) {
-                continueSimulation = true;
+                shouldContinue = true;
             }
         }
 
         // create simulation
-
+        SimulationManager simulationManager = new SimulationManager(fieldSize, farmerCount, carrotGrowthProbability, rabbitSpawnProbability, shouldContinue);
+        simulationManager.run();
     }
 }
