@@ -29,3 +29,10 @@ bin/
 .DS_Store
 
 .idea/
+
+# IntelliJ
+
+misc.xml
+modules.xml
+workspace.xml
+vsc.xml
