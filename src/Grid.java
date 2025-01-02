@@ -1,7 +1,9 @@
 import java.awt.*;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class Grid {
     private final Field[][] fields;
+    private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock(true);
 
     public Grid(int rows, int cols) {
         fields = new Field[rows][cols];
@@ -10,6 +12,22 @@ public class Grid {
                 fields[i][j] = new Field();
             }
         }
+    }
+
+    public void renderLock() {
+        lock.writeLock().lock();
+    }
+
+    public void renderUnlock() {
+        lock.writeLock().unlock();
+    }
+
+    public void simulationLock() {
+        lock.readLock().lock();
+    }
+
+    public void simulationUnlock() {
+        lock.readLock().unlock();
     }
 
     public void setValue(int row, int col, Color value) {

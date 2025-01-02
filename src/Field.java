@@ -1,10 +1,9 @@
 import java.awt.*;
-import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class Field {
     private volatile Color color;
-    private final ReadWriteLock lock = new ReentrantReadWriteLock();
+    private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
     public Field() {
         this.color = Color.WHITE;
