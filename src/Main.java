@@ -1,4 +1,7 @@
 import java.awt.*;
+import java.util.LinkedList;
+import java.util.List;
+
 import static java.lang.Thread.sleep;
 
 public class Main {
@@ -8,14 +11,27 @@ public class Main {
     }
 
     public static void main(String[] args) throws InterruptedException {
-        Grid grid = new Grid(5,5);
-        Renderer renderer = new Renderer(5,5,grid);
+        Field field = new Field(5,5);
+        Renderer renderer = new Renderer(5,5, field);
+        List<ActorAbstract> actors = new LinkedList<ActorAbstract>();
 
-        sleep(1000);
-        renderer.updateField(0, 0, Color.RED);
-        sleep(1000);
-        renderer.updateField(0, 1, Color.RED);
-        sleep(1000);
-        renderer.updateField(4, 4, Color.RED);
+        for (int i = 0; i < 5; i++) {
+            actors.add(new Rabbit(field));
+        }
+
+//        sleep(1000);
+//        renderer.updateField(0, 0, Color.RED);
+//        sleep(1000);
+//        renderer.updateField(0, 1, Color.RED);
+//        sleep(1000);
+//        renderer.updateField(4, 4, Color.RED);
+
+        while (true) {
+            field.renderLock();
+            // if rabbits are dead, remove them
+            actors.removeIf(actor -> actor.getClass().isInstance(Rabbit.class) && !((Rabbit) actor).getIsAlive());
+            renderer.updateFields();
+            field.renderUnlock();
+        }
     }
 }
