@@ -12,7 +12,9 @@ public class Rabbit extends ActorAbstract {
     @Override
     public void tick() {
         field.simulationLock();
+        rabbit_mutex.lock();
         randomWalk();
+        rabbit_mutex.unlock();
         field.simulationUnlock();
     }
 
@@ -21,6 +23,7 @@ public class Rabbit extends ActorAbstract {
     }
 
     public void turnDead() {
+        assert rabbit_mutex.isHeldByCurrentThread();
         isAlive = false;
     }
 
