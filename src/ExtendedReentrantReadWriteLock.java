@@ -17,6 +17,10 @@ public class ExtendedReentrantReadWriteLock extends ReentrantReadWriteLock {
         return readerThreads.contains(Thread.currentThread());
     }
 
+    public boolean isRWLockedByCurrentThread() {
+        return isReadLockedByCurrentThread() || isWriteLockedByCurrentThread();
+    }
+
     public class ExtendedReadLock extends ReadLock {
         ExtendedReadLock(ReentrantReadWriteLock lock) {
             super(lock);
