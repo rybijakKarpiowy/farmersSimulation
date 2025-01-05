@@ -19,19 +19,24 @@ public class Main {
             actors.add(new Rabbit(field));
         }
 
-//        sleep(1000);
-//        renderer.updateField(0, 0, Color.RED);
-//        sleep(1000);
-//        renderer.updateField(0, 1, Color.RED);
-//        sleep(1000);
-//        renderer.updateField(4, 4, Color.RED);
-
         while (true) {
             field.renderLock();
-            // if rabbits are dead, remove them
-            actors.removeIf(actor -> actor.getClass().isInstance(Rabbit.class) && !((Rabbit) actor).getIsAlive());
-            renderer.updateFields();
-            field.renderUnlock();
+            System.out.println("Acquired render lock");
+            try {
+                field.plantCarrot(field.getRandomCoordinates());
+                field.growCarrots();
+
+//                actors.removeIf(actor ->
+//                        actor instanceof Rabbit && !((Rabbit) actor).getIsAlive()
+//                );
+
+                renderer.updateFields();
+            } finally {
+                field.renderUnlock();
+                System.out.println("Released render lock");
+            }
+
+            Thread.sleep(100);
         }
     }
 }

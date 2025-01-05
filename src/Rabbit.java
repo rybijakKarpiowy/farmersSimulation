@@ -5,7 +5,7 @@ public class Rabbit extends ActorAbstract {
     public ReentrantLock rabbit_mutex = new ReentrantLock();
 
     public Rabbit(Field field) {
-        super(field);
+        super(field, "rabbit");
         this.coordinates = field.getRandomCoordinates();
     }
 

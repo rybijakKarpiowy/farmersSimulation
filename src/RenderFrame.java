@@ -2,6 +2,7 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.plaf.basic.BasicBorders;
 import java.awt.*;
+import java.util.concurrent.CountDownLatch;
 
 public class RenderFrame extends JFrame {
     private final JPanel[][] panels;
@@ -11,7 +12,6 @@ public class RenderFrame extends JFrame {
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new GridLayout(rows, cols));
-        ((JPanel) getContentPane()).setBorder(new EmptyBorder(10, 10, 10, 10));
 
         panels = new JPanel[rows][cols];
 
@@ -28,6 +28,20 @@ public class RenderFrame extends JFrame {
 
     public void setColor(int row, int col, Color color) {
         panels[row][col].setBackground(color);
+    }
+
+    public void addImage(int row, int col, String path) {
+        ImageIcon icon = new ImageIcon(path);
+        JLabel label = new JLabel(icon);
+        panels[row][col].add(label, BorderLayout.CENTER);
+        panels[row][col].revalidate();
+        panels[row][col].repaint();
+    }
+
+    public void removeImage(int row, int col) {
+        panels[row][col].removeAll();
+        panels[row][col].revalidate();
+        panels[row][col].repaint();
     }
 
 }

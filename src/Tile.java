@@ -21,18 +21,24 @@ public class Tile {
         return lock.isRWLockedByCurrentThread();
     }
 
-    public Color getColor() {
+    public Color getBackgroundColor() {
         assert isRWLockedByCurrentThread();
-        // if tile is empty and no actors, return green
-        if (this.state == TileState.EMPTY && this.actors.isEmpty()) {
-            return Color.GREEN;
+
+        if (this.state == TileState.EMPTY) {
+            return Color.WHITE;
+        } else if (this.state == TileState.DAMAGED) {
+            return Color.RED;
+        } else if (this.state == TileState.CARROT_PLANTED) {
+            return new Color(255, 69, 0, 50);
+        } else if (this.state == TileState.CARROT_GROWTH_1) {
+            return new Color(255, 69, 0, 100);
+        } else if (this.state == TileState.CARROT_GROWTH_2) {
+            return new Color(255, 69, 0, 150);
+        } else if (this.state == TileState.CARROT_MATURE) {
+            return new Color(255, 69, 0, 200);
+        } else {
+            return Color.BLACK;
         }
-        // if tile is empty and has actors, return yellow
-        if (this.state == TileState.EMPTY && !this.actors.isEmpty()) {
-            return Color.YELLOW;
-        }
-        // else return white
-        return Color.WHITE;
     }
 
     public void setState(TileState state) {
@@ -42,11 +48,7 @@ public class Tile {
 
     public TileState getState() {
         assert isRWLockedByCurrentThread();
-        try {
-            return this.state;
-        } finally {
-            lock.writeLock().unlock();
-        }
+        return this.state;
     }
 
     public Float getCarrotCoverage() {
@@ -60,7 +62,6 @@ public class Tile {
 
     public void tickCarrotGrowth() {
         assert lock.isWriteLockedByCurrentThread();
-        TileState state = this.getState();
         if (state == TileState.EMPTY || state == TileState.DAMAGED || state == TileState.CARROT_MATURE) {
             // pass
         } else if (state == TileState.CARROT_PLANTED) {

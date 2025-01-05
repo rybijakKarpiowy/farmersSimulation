@@ -31,10 +31,16 @@ public class Field {
         lock.readLock().unlock();
     }
 
-    public Color getColor(int row, int col) {
+    public Color getTileBackgroundColor(Coordinates coordinates) {
         assert lock.isReadLockedByCurrentThread();
-        validatePosition(row, col);
-        return tiles[row][col].getColor();
+        validatePosition(coordinates.y, coordinates.x);
+        return tiles[coordinates.y][coordinates.x].getBackgroundColor();
+    }
+
+    public List<ActorAbstract> getActors(Coordinates coordinates) {
+        assert lock.isReadLockedByCurrentThread();
+        validatePosition(coordinates.y, coordinates.x);
+        return tiles[coordinates.y][coordinates.x].getActors();
     }
 
     private void validatePosition(int row, int col) {
@@ -110,6 +116,24 @@ public class Field {
 
     public Coordinates getRandomCoordinates() {
         return new Coordinates((int) (Math.random() * getCols()), (int) (Math.random() * getRows()));
+    }
+
+    public void plantCarrot(Coordinates coordinates) {
+        assert lock.isWriteLockedByCurrentThread();
+        getTile(coordinates).lock.writeLock().lock();
+        getTile(coordinates).plantCarrot();
+        getTile(coordinates).lock.writeLock().unlock();
+    }
+
+    public void growCarrots() {
+        assert lock.isWriteLockedByCurrentThread();
+        for (int i = 0; i < getRows(); i++) {
+            for (int j = 0; j < getCols(); j++) {
+                getTile(new Coordinates(j, i)).lock.writeLock().lock();
+                getTile(new Coordinates(j, i)).tickCarrotGrowth();
+                getTile(new Coordinates(j, i)).lock.writeLock().unlock();
+            }
+        }
     }
 
     public Rabbit addRabbit() {
