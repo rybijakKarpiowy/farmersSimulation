@@ -57,8 +57,7 @@ public class Field {
 
     public Tile getTile(Coordinates coordinates) {
         assert isRWLockedByCurrentThread();
-        assert coordinates.x >= 0 && coordinates.x < getCols();
-        assert coordinates.y >= 0 && coordinates.y < getRows();
+        validatePosition(coordinates.y, coordinates.x);
         return tiles[coordinates.y][coordinates.x];
     }
 
@@ -82,6 +81,8 @@ public class Field {
 
     private void lockTiles(Coordinates coordinates1, Coordinates coordinates2) {
         assert isRWLockedByCurrentThread();
+        validatePosition(coordinates1.y, coordinates1.x);
+        validatePosition(coordinates2.y, coordinates2.x);
         if (coordinates1.x < coordinates2.x || coordinates1.y < coordinates2.y) {
             getTile(coordinates1).tile_lock.lock();
             getTile(coordinates2).tile_lock.lock();
