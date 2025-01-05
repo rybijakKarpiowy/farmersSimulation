@@ -30,15 +30,17 @@ public class RenderFrame extends JFrame {
         panels[row][col].setBackground(color);
     }
 
-    public void addImage(int row, int col, String path) {
-        ImageIcon icon = new ImageIcon(path);
-        JLabel label = new JLabel(icon);
-        panels[row][col].add(label, BorderLayout.CENTER);
+    public void addRabbit(int row, int col) {
+        // blue dot
+        JPanel rabbit = new JPanel();
+        rabbit.setBackground(Color.BLUE);
+        rabbit.setBorder(new EmptyBorder(10, 10, 10, 10));
+        panels[row][col].add(rabbit);
         panels[row][col].revalidate();
         panels[row][col].repaint();
     }
 
-    public void removeImage(int row, int col) {
+    public void clearPanel(int row, int col) {
         panels[row][col].removeAll();
         panels[row][col].revalidate();
         panels[row][col].repaint();

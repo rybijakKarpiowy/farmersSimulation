@@ -21,7 +21,6 @@ public class Main {
 
         while (true) {
             field.renderLock();
-            System.out.println("Acquired render lock");
             try {
                 field.plantCarrot(field.getRandomCoordinates());
                 field.growCarrots();
@@ -33,7 +32,6 @@ public class Main {
                 renderer.updateFields();
             } finally {
                 field.renderUnlock();
-                System.out.println("Released render lock");
             }
 
             Thread.sleep(100);

@@ -15,23 +15,23 @@ public class Renderer {
         frame.setColor(row, col, color);
     }
 
-    public void addRabbitImage(int row, int col) {
-        frame.addImage(row, col, "src/images/rabbit.png");
+    public void addRabbit(int row, int col) {
+        frame.addRabbit(row, col);
     }
 
-    public void removeImages(int row, int col) {
-        frame.removeImage(row, col);
+    public void clearPanel(int row, int col) {
+        frame.clearPanel(row, col);
     }
 
     public void updateFields() {
         for (int i = 0; i < field.getRows(); i++) {
             for (int j = 0; j < field.getCols(); j++) {
-                removeImages(i, j);
+                clearPanel(i, j);
                 updateBackgroundColor(i, j, field.getTileBackgroundColor(new Coordinates(i, j)));
 
                 for (ActorAbstract actor : field.getActors(new Coordinates(i, j))) {
                     if (Objects.equals(actor.getType(), "rabbit")) {
-                        addRabbitImage(i, j);
+                        addRabbit(i, j);
                     }
                 }
             }
