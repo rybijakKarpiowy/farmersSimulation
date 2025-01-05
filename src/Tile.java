@@ -51,12 +51,7 @@ public class Tile {
 
     public Float getCarrotCoverage() {
         assert isRWLockedByCurrentThread();
-        lock.readLock().lock();
-        try {
-            return this.carrot_coverage;
-        } finally {
-            lock.readLock().unlock();
-        }
+        return this.carrot_coverage;
     }
 
     public Coordinates getCoordinates() {
