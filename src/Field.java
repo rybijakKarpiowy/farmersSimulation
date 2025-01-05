@@ -10,7 +10,7 @@ public class Field {
         tiles = new Tile[rows][cols];
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
-                tiles[i][j] = new Tile(lock, i, j);
+                tiles[i][j] = new Tile(i, j);
             }
         }
     }
@@ -52,7 +52,7 @@ public class Field {
     }
 
     public boolean isRWLockedByCurrentThread() {
-        return lock.isReadLockedByCurrentThread() || lock.isWriteLockedByCurrentThread();
+        return lock.isRWLockedByCurrentThread();
     }
 
     public Tile getTile(Coordinates coordinates) {
@@ -83,11 +83,11 @@ public class Field {
     private void writeLockTiles(Coordinates coordinates1, Coordinates coordinates2) {
         assert isRWLockedByCurrentThread();
         if (coordinates1.x < coordinates2.x || coordinates1.y < coordinates2.y) {
-            getTile(coordinates1).tile_lock.writeLock().lock();
-            getTile(coordinates2).tile_lock.writeLock().lock();
+            getTile(coordinates1).lock.writeLock().lock();
+            getTile(coordinates2).lock.writeLock().lock();
         } else {
-            getTile(coordinates2).tile_lock.writeLock().lock();
-            getTile(coordinates1).tile_lock.writeLock().lock();
+            getTile(coordinates2).lock.writeLock().lock();
+            getTile(coordinates1).lock.writeLock().lock();
         }
     }
 
@@ -103,8 +103,8 @@ public class Field {
         getTile(new_coordinates).addActor(actor);
         actor.setCoordinates(new_coordinates);
         // unlock the tiles
-        getTile(old_coordinates).tile_lock.writeLock().unlock();
-        getTile(new_coordinates).tile_lock.writeLock().unlock();
+        getTile(old_coordinates).lock.writeLock().unlock();
+        getTile(new_coordinates).lock.writeLock().unlock();
     }
 
     public Coordinates getRandomCoordinates() {
