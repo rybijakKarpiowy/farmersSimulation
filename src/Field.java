@@ -101,7 +101,6 @@ public class Field {
     public void moveActor(ActorAbstract actor, Coordinates new_coordinates) {
         assert isRWLockedByCurrentThread();
         Coordinates old_coordinates = actor.getCoordinates();
-        System.out.println("Moving actor " + actor.getThreadId() + " from " + actor.getCoordinates().x + " " + actor.getCoordinates().y + " to " + new_coordinates.x + " " + new_coordinates.y);
         // lock the tile that the actor is currently on and the tile that the actor is moving to
         // in pre-specified order to prevent deadlocks
         writeLockTiles(actor.getCoordinates(), new_coordinates);
@@ -140,5 +139,16 @@ public class Field {
         Rabbit rabbit = new Rabbit(this);
         getTile(rabbit.getCoordinates()).addActor(rabbit);
         return rabbit;
+    }
+
+    public boolean killRabbit(Rabbit rabbit
+//                           , Dog dog // TODO: implement dog
+    ) {
+        assert isRWLockedByCurrentThread();
+        Tile tile = getTile(rabbit.getCoordinates());
+        tile.lock.writeLock().lock();
+        boolean killed = tile.killRabbitOnTile(rabbit);
+        tile.lock.writeLock().unlock();
+        return killed;
     }
 }

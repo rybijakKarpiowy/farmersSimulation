@@ -117,4 +117,36 @@ public class Tile {
         }
         updateDamaged();
     }
+
+    public boolean killRabbitOnTile(Rabbit rabbit
+//            , Dog dog // TODO: implement dog
+    ) {
+        assert lock.isWriteLockedByCurrentThread();
+        // check if the rabbit is still here and alive
+        if (!this.actors.contains(rabbit)) {
+            // the rabbit is not here anymore, maybe it is dead
+            if (rabbit.getIsAlive()) {
+                // the rabbit is alive, it must have moved to another tile
+                System.err.println("Rabbit is not here anymore, maybe it moved to another tile");
+                return false;
+            }
+            // the rabbit is dead, stop chasing it
+            // TODO: implement dog
+            return false;
+        }
+        // the rabbit is here, check if it is alive
+        if (!rabbit.getIsAlive()) {
+            // the rabbit is dead, stop chasing it
+            // TODO: implement dog
+            return false;
+        }
+        rabbit.rabbit_mutex.lock();
+        rabbit.turnDead();
+        rabbit.rabbit_mutex.unlock();
+        // remove the rabbit from the tile
+        this.removeActor(rabbit);
+        // stop chasing the rabbit
+        // TODO: implement dog
+        return true;
+    }
 }
