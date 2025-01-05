@@ -10,7 +10,7 @@ public class Field {
         tiles = new Tile[rows][cols];
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
-                tiles[i][j] = new Tile(lock, i, j);
+                tiles[i][j] = new Tile(i, j);
             }
         }
     }
@@ -31,10 +31,10 @@ public class Field {
         lock.readLock().unlock();
     }
 
-    public Color getValue(int row, int col) {
+    public Color getColor(int row, int col) {
         assert lock.isReadLockedByCurrentThread();
         validatePosition(row, col);
-        return tiles[row][col].getValue();
+        return tiles[row][col].getColor();
     }
 
     private void validatePosition(int row, int col) {
@@ -52,7 +52,7 @@ public class Field {
     }
 
     public boolean isRWLockedByCurrentThread() {
-        return lock.isReadLockedByCurrentThread() || lock.isWriteLockedByCurrentThread();
+        return lock.isRWLockedByCurrentThread();
     }
 
     public Tile getTile(Coordinates coordinates) {
@@ -79,16 +79,16 @@ public class Field {
         return neighbors;
     }
 
-    private void lockTiles(Coordinates coordinates1, Coordinates coordinates2) {
+    private void writeLockTiles(Coordinates coordinates1, Coordinates coordinates2) {
         assert isRWLockedByCurrentThread();
         validatePosition(coordinates1.y, coordinates1.x);
         validatePosition(coordinates2.y, coordinates2.x);
         if (coordinates1.x < coordinates2.x || coordinates1.y < coordinates2.y) {
-            getTile(coordinates1).tile_lock.lock();
-            getTile(coordinates2).tile_lock.lock();
+            getTile(coordinates1).lock.writeLock().lock();
+            getTile(coordinates2).lock.writeLock().lock();
         } else {
-            getTile(coordinates2).tile_lock.lock();
-            getTile(coordinates1).tile_lock.lock();
+            getTile(coordinates2).lock.writeLock().lock();
+            getTile(coordinates1).lock.writeLock().lock();
         }
     }
 
@@ -98,14 +98,14 @@ public class Field {
         System.out.println("Moving actor " + actor.getThreadId() + " from " + actor.getCoordinates().x + " " + actor.getCoordinates().y + " to " + new_coordinates.x + " " + new_coordinates.y);
         // lock the tile that the actor is currently on and the tile that the actor is moving to
         // in pre-specified order to prevent deadlocks
-        lockTiles(actor.getCoordinates(), new_coordinates);
+        writeLockTiles(actor.getCoordinates(), new_coordinates);
         // move the actor
         getTile(actor.getCoordinates()).removeActor(actor);
         getTile(new_coordinates).addActor(actor);
         actor.setCoordinates(new_coordinates);
         // unlock the tiles
-        getTile(old_coordinates).tile_lock.unlock();
-        getTile(new_coordinates).tile_lock.unlock();
+        getTile(old_coordinates).lock.writeLock().unlock();
+        getTile(new_coordinates).lock.writeLock().unlock();
     }
 
     public Coordinates getRandomCoordinates() {

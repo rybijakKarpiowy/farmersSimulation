@@ -18,7 +18,7 @@ public class Renderer {
         field.renderLock();
         for (int i = 0; i < field.getRows(); i++) {
             for (int j = 0; j < field.getCols(); j++) {
-                updateField(i, j, field.getValue(i, j));
+                updateField(i, j, field.getColor(i, j));
             }
         }
         field.renderUnlock();
