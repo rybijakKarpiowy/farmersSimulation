@@ -10,6 +10,17 @@ public class Main {
         System.out.println("Flags: -c <carrot_growth_probability> -r <rabbit_spawn_probability> --continue");
     }
 
+    private static void removeDeadRabbits(List<ActorAbstract> actors) {
+        for (int i = actors.size() - 1; i >= 0; i--) {
+            ActorAbstract actor = actors.get(i);
+            if (actor instanceof Rabbit rabbit) {
+                if (!rabbit.getIsAlive()) {
+                    actors.remove(i);
+                }
+            }
+        }
+    }
+
     public static void main(String[] args) throws InterruptedException {
         Field field = new Field(5,5);
         Renderer renderer = new Renderer(5,5, field);
@@ -19,15 +30,24 @@ public class Main {
             actors.add(new Rabbit(field));
         }
 
+        int counter = 0;
         while (true) {
             field.renderLock();
+            counter++;
             try {
                 field.plantCarrot(field.getRandomCoordinates());
                 field.growCarrots();
 
-//                actors.removeIf(actor ->
-//                        actor instanceof Rabbit && !((Rabbit) actor).getIsAlive()
-//                );
+                // THIS IS A DEBUG IF STATEMENT
+                if (counter == 10) {
+                    // kill a rabbit
+                    Rabbit rabbit = (Rabbit) actors.getFirst();
+                    if (field.killRabbit(rabbit)) {
+                        System.out.println("Rabbit killed on " + rabbit.getCoordinates().x + " " + rabbit.getCoordinates().y);
+                    }
+                }
+
+                removeDeadRabbits(actors);
 
                 renderer.updateFields();
             } finally {

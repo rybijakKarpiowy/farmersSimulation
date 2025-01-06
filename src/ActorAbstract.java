@@ -3,19 +3,13 @@ import java.util.List;
 public abstract class ActorAbstract extends ThreadAbstract {
     protected Coordinates coordinates;
     protected Field field;
-    protected String type;
 
     public ActorAbstract(Field field, String type) {
         this.field = field;
-        this.type = type;
     }
 
     public Coordinates getCoordinates() {
         return coordinates;
-    }
-
-    public String getType() {
-        return type;
     }
 
     public void setCoordinates(Coordinates coordinates) {

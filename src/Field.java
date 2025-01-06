@@ -145,10 +145,12 @@ public class Field {
 //                           , Dog dog // TODO: implement dog
     ) {
         assert isRWLockedByCurrentThread();
+        rabbit.rabbit_mutex.lock();
         Tile tile = getTile(rabbit.getCoordinates());
         tile.lock.writeLock().lock();
         boolean killed = tile.killRabbitOnTile(rabbit);
         tile.lock.writeLock().unlock();
+        rabbit.rabbit_mutex.unlock();
         return killed;
     }
 }

@@ -30,7 +30,7 @@ public class Renderer {
                 updateBackgroundColor(i, j, field.getTileBackgroundColor(new Coordinates(i, j)));
 
                 for (ActorAbstract actor : field.getActors(new Coordinates(i, j))) {
-                    if (Objects.equals(actor.getType(), "rabbit")) {
+                    if (actor instanceof Rabbit) {
                         addRabbit(i, j);
                     }
                 }

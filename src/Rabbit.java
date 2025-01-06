@@ -13,6 +13,11 @@ public class Rabbit extends ActorAbstract {
     public void tick() {
         field.simulationLock();
         rabbit_mutex.lock();
+        if (!isAlive) {
+            rabbit_mutex.unlock();
+            field.simulationUnlock();
+            return;
+        }
         randomWalk();
         rabbit_mutex.unlock();
         field.simulationUnlock();
