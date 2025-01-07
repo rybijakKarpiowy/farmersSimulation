@@ -1,9 +1,6 @@
 import javax.swing.*;
-import java.awt.*;
 import java.util.LinkedList;
 import java.util.List;
-
-import static java.lang.Thread.sleep;
 
 public class Main {
     static void printUsage() {
@@ -33,6 +30,7 @@ public class Main {
 
         int counter = 0;
         while (true) {
+            renderFrame.resetLatch();
             field.renderLock();
             counter++;
             try {
@@ -52,6 +50,7 @@ public class Main {
 
                 SwingUtilities.invokeLater(renderFrame::updateFields);
             } finally {
+                renderFrame.await();
                 field.renderUnlock();
             }
 

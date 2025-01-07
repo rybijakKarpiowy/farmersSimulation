@@ -7,6 +7,7 @@ import java.util.concurrent.CountDownLatch;
 public class RenderFrame extends JFrame {
     private final JPanel[][] panels;
     private final Field field;
+    private CountDownLatch latch = new CountDownLatch(1);
 
     public RenderFrame(int rows, int cols, Field field) {
         super("Render");
@@ -27,6 +28,22 @@ public class RenderFrame extends JFrame {
         updateFields();
 
         setVisible(true);
+    }
+
+    public void await() {
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void countDown() {
+        latch.countDown();
+    }
+
+    public void resetLatch() {
+        latch = new CountDownLatch(1);
     }
 
     public void setColor(int row, int col, Color color) {
@@ -50,7 +67,6 @@ public class RenderFrame extends JFrame {
     }
 
     public void updateFields() {
-        field.renderLock();
         for (int i = 0; i < field.getRows(); i++) {
             for (int j = 0; j < field.getCols(); j++) {
                 clearPanel(i, j);
@@ -64,7 +80,9 @@ public class RenderFrame extends JFrame {
             }
         }
         repaint();
-        field.renderUnlock();
+
+
+        countDown();
     }
 
 }
