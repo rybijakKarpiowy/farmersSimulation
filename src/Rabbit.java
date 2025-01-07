@@ -21,7 +21,7 @@ public class Rabbit extends ActorAbstract {
         Tile tile = field.getTile(this.coordinates);
 
         tile.lock.writeLock().lock();
-        if (tile.isCarrotOnTile()) {
+        if (tile.canRabbitsEat()) {
             eat();
         } else {
             randomWalk();

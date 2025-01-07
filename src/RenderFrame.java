@@ -53,7 +53,7 @@ public class RenderFrame extends JFrame {
         panels[row][col].setBackground(color);
     }
 
-    public void addRabbit(int row, int col) {
+    private void addRabbit(int row, int col) {
         // blue dot
         JPanel rabbit = new JPanel();
         rabbit.setBackground(Color.BLUE);
@@ -61,6 +61,24 @@ public class RenderFrame extends JFrame {
         panels[row][col].add(rabbit);
         panels[row][col].revalidate();
         panels[row][col].repaint();
+    }
+
+    private void addFarmer(int row, int col) {
+        // pink dot
+        JPanel farmer = new JPanel();
+        farmer.setBackground(Color.PINK);
+        farmer.setBorder(new EmptyBorder(10, 10, 10, 10));
+        panels[row][col].add(farmer);
+        panels[row][col].revalidate();
+        panels[row][col].repaint();
+    }
+
+    private void addActor(ActorAbstract actor, int row, int col) {
+        if (actor instanceof Rabbit) {
+            addRabbit(row, col);
+        } else if (actor instanceof Farmer) {
+            addFarmer(row, col);
+        }
     }
 
     public void clearPanel(int row, int col) {
@@ -76,9 +94,7 @@ public class RenderFrame extends JFrame {
                 setColor(i, j, field.getTileBackgroundColor(new Coordinates(i, j)));
 
                 for (ActorAbstract actor : field.getActors(new Coordinates(i, j))) {
-                    if (actor instanceof Rabbit) {
-                        addRabbit(i, j);
-                    }
+                    addActor(actor, i, j);
                 }
             }
         }

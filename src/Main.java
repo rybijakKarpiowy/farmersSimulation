@@ -22,21 +22,19 @@ public class Main {
     }
 
     public static void main(String[] args) throws InterruptedException {
-        Field field = new Field(5,5);
-        RenderFrame renderFrame = new RenderFrame(5, 5, field);
+        Field field = new Field(25,25);
+        RenderFrame renderFrame = new RenderFrame(25, 25, field);
         List<ActorAbstract> actors = new LinkedList<ActorAbstract>();
 
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 10; i++) {
             actors.add(new Rabbit(field));
+            actors.add(new Farmer(field));
         }
 
         while (true) {
             renderFrame.resetLatch();
             field.renderLock();
             try {
-                // TODO: move planting carrots to farmers
-                field.plantCarrot(field.getRandomCoordinates());
-
                 removeDeadRabbits(actors);
                 SwingUtilities.invokeLater(renderFrame::updateFields);
             } finally {

@@ -140,14 +140,6 @@ public class Field extends ThreadAbstract {
         return new Coordinates((int) (Math.random() * getCols()), (int) (Math.random() * getRows()));
     }
 
-    public void plantCarrot(Coordinates coordinates) {
-        assert lock.isWriteLockedByCurrentThread();
-        Tile tile = getTile(coordinates);
-        tile.lock.writeLock().lock();
-        tile.plantCarrot();
-        tile.lock.writeLock().unlock();
-    }
-
     public void growCarrots() {
         assert lock.isWriteLockedByCurrentThread();
         for (int i = 0; i < getRows(); i++) {

@@ -61,7 +61,7 @@ public class Tile {
         return this.coordinates;
     }
 
-    public boolean isCarrotOnTile() {
+    public boolean canRabbitsEat() {
         assert lock.isRWLockedByCurrentThread();
         return this.state == TileState.CARROT_MATURE || this.state == TileState.CARROT_GROWTH_2 || this.state == TileState.CARROT_GROWTH_1 || this.state == TileState.CARROT_PLANTED || (this.carrot_coverage > 0.0f && this.state == TileState.DAMAGED);
     }
@@ -93,13 +93,6 @@ public class Tile {
         }
     }
 
-    public void updateDamaged() {
-        assert lock.isWriteLockedByCurrentThread();
-        if (this.carrot_coverage < 0.3) {
-            this.setState(TileState.DAMAGED);
-        }
-    }
-
     public List<ActorAbstract> getActors() {
         assert lock.isRWLockedByCurrentThread();
         return this.actors;
@@ -117,11 +110,26 @@ public class Tile {
 
     public void plantCarrot() {
         assert lock.isWriteLockedByCurrentThread();
-        if (this.state != TileState.EMPTY) {
-            return;
+        assert this.state == TileState.EMPTY;
+        // tile is locked so we don't have to worry
+        //noinspection NonAtomicOperationOnVolatileField
+        this.carrot_coverage += 0.25f;
+        if (this.carrot_coverage >= 1.0f) {
+            this.carrot_coverage = 1.0f;
+            this.state = TileState.CARROT_PLANTED;
         }
-        this.setState(TileState.CARROT_PLANTED);
-        this.carrot_coverage = 1.0f;
+    }
+
+    public void repairTile() {
+        assert lock.isWriteLockedByCurrentThread();
+        assert this.state == TileState.DAMAGED;
+        // tile is locked so we don't have to worry
+        //noinspection NonAtomicOperationOnVolatileField
+        this.carrot_coverage += 0.5f;
+        if (this.carrot_coverage >= 1.0f) {
+            this.carrot_coverage = 1.0f;
+            this.state = TileState.CARROT_GROWTH_1;
+        }
     }
 
     public void eatCarrot() {
@@ -131,8 +139,10 @@ public class Tile {
         this.carrot_coverage -= 0.2f;
         if (this.carrot_coverage < 0.0f) {
             this.carrot_coverage = 0.0f;
+            this.state = TileState.EMPTY;
+        } else if (this.carrot_coverage < 0.5) {
+            this.state = TileState.DAMAGED;
         }
-        updateDamaged();
     }
 
     public boolean killRabbitOnTile(Rabbit rabbit
