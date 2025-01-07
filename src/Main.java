@@ -30,33 +30,19 @@ public class Main {
             actors.add(new Rabbit(field));
         }
 
-        int counter = 0;
         while (true) {
             renderFrame.resetLatch();
             field.renderLock();
-            counter++;
             try {
+                // TODO: move planting carrots to farmers
                 field.plantCarrot(field.getRandomCoordinates());
-                field.growCarrots();
-
-                // THIS IS A DEBUG IF STATEMENT
-                if (counter == 10) {
-                    // kill a rabbit
-                    Rabbit rabbit = (Rabbit) actors.getFirst();
-                    if (field.killRabbit(rabbit)) {
-                        System.out.println("Rabbit killed on " + rabbit.getCoordinates().x + " " + rabbit.getCoordinates().y);
-                    }
-                }
 
                 removeDeadRabbits(actors);
-
                 SwingUtilities.invokeLater(renderFrame::updateFields);
             } finally {
                 renderFrame.await();
                 field.renderUnlock();
             }
-
-//            Thread.sleep(30);
         }
     }
 }

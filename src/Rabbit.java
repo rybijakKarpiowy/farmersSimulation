@@ -17,11 +17,17 @@ public class Rabbit extends ActorAbstract {
             field.simulationUnlock();
             return;
         }
-        Tile tile = field.getTile(this.coordinates);
-//        tile.lock.writeLock();
-//        tile.isCarrotOnTile();
 
-        randomWalk();
+        Tile tile = field.getTile(this.coordinates);
+
+        tile.lock.writeLock().lock();
+        if (tile.isCarrotOnTile()) {
+            eat();
+        } else {
+            randomWalk();
+        }
+        tile.lock.writeLock().unlock();
+
         rabbit_mutex.unlock();
         field.simulationUnlock();
     }
