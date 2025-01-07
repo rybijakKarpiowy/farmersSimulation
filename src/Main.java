@@ -1,3 +1,4 @@
+import javax.swing.*;
 import java.awt.*;
 import java.util.LinkedList;
 import java.util.List;
@@ -23,7 +24,7 @@ public class Main {
 
     public static void main(String[] args) throws InterruptedException {
         Field field = new Field(5,5);
-        Renderer renderer = new Renderer(5,5, field);
+        RenderFrame renderFrame = new RenderFrame(5, 5, field);
         List<ActorAbstract> actors = new LinkedList<ActorAbstract>();
 
         for (int i = 0; i < 5; i++) {
@@ -49,7 +50,7 @@ public class Main {
 
                 removeDeadRabbits(actors);
 
-                renderer.updateFields();
+                SwingUtilities.invokeLater(renderFrame::updateFields);
             } finally {
                 field.renderUnlock();
             }
