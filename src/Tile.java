@@ -165,4 +165,14 @@ public class Tile {
         // TODO: implement dog
         return true;
     }
+
+    public Rabbit hasRabbit() {
+        assert lock.isReadLockedByCurrentThread();
+        for (ActorAbstract actor : this.actors) {
+            if (actor instanceof Rabbit) {
+                return (Rabbit) actor;
+            }
+        }
+        return null;
+    }
 }

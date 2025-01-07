@@ -1,3 +1,5 @@
+import java.util.List;
+
 public class Farmer extends ActorAbstract {
 //    private final Dog dog;
 
@@ -40,7 +42,21 @@ public class Farmer extends ActorAbstract {
     }
 
     private void lookAround() {
-        // TODO: look for rabbits and update dog chasing rabbit
-
+        assert field.isRWLockedByCurrentThread();
+        // TODO: lock dog, check if it chases something, if yes return, unlock dog
+        List<Tile> tiles = field.getTilesInViewRange(this.coordinates);
+        Rabbit rabbit = null;
+        for (Tile tile : tiles) {
+            tile.lock.readLock().lock();
+            rabbit = tile.hasRabbit();
+            tile.lock.readLock().unlock();
+            if (rabbit != null) {
+                break;
+            }
+        }
+        if (rabbit != null) {
+            // TODO: lock dog, set target, unlock dog
+            // dog.selectTarget(rabbit);
+        }
     }
 }

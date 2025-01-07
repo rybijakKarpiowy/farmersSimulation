@@ -170,4 +170,18 @@ public class Field extends ThreadAbstract {
         rabbit.rabbit_mutex.unlock();
         return killed;
     }
+
+    public List<Tile> getTilesInViewRange(Coordinates coordinates) {
+        // view range is 5 (11x11 diamond)
+        assert isRWLockedByCurrentThread();
+        List<Tile> tiles = new LinkedList<Tile>();
+        for (int i = coordinates.y - 5; i <= coordinates.y + 5; i++) {
+            for (int j = coordinates.x - 5; j <= coordinates.x + 5; j++) {
+                if (i >= 0 && i < getRows() && j >= 0 && j < getCols() && Math.abs(i - coordinates.y) + Math.abs(j - coordinates.x) <= 5) {
+                    tiles.add(getTile(new Coordinates(j, i)));
+                }
+            }
+        }
+        return tiles;
+    }
 }
