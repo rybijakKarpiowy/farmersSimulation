@@ -12,7 +12,7 @@ public class Main {
         for (int i = actors.size() - 1; i >= 0; i--) {
             ActorAbstract actor = actors.get(i);
             if (actor instanceof Rabbit rabbit) {
-                if (!rabbit.getIsAlive()) {
+                if (rabbit.getIsDead()) {
                     actors.remove(i);
                 }
             }
@@ -54,7 +54,7 @@ public class Main {
                 field.renderUnlock();
             }
 
-            Thread.sleep(100);
+//            Thread.sleep(30);
         }
     }
 }

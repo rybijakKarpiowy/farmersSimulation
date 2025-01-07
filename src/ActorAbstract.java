@@ -4,8 +4,35 @@ public abstract class ActorAbstract extends ThreadAbstract {
     protected Coordinates coordinates;
     protected Field field;
 
-    public ActorAbstract(Field field, String type) {
+    public ActorAbstract(Field field) {
+        Coordinates coordinates = field.getRandomCoordinates();
         this.field = field;
+        this.coordinates = coordinates;
+
+        field.simulationLock();
+        Tile tile = field.getTile(coordinates);
+        tile.lock.writeLock().lock();
+
+        // start the thread
+        super(tile);
+
+        tile.lock.writeLock().unlock();
+        field.simulationUnlock();
+    }
+
+    public ActorAbstract(Field field, Coordinates coordinates) {
+        this.field = field;
+        this.coordinates = coordinates;
+
+        field.simulationLock();
+        Tile tile = field.getTile(coordinates);
+        tile.lock.writeLock().lock();
+
+        // start the thread
+        super(tile);
+
+        tile.lock.writeLock().unlock();
+        field.simulationUnlock();
     }
 
     public Coordinates getCoordinates() {

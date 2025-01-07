@@ -25,7 +25,10 @@ public class RenderFrame extends JFrame {
                 add(panels[i][j]);
             }
         }
+
+        field.renderLock();
         updateFields();
+        field.renderUnlock();
 
         setVisible(true);
     }
@@ -80,8 +83,6 @@ public class RenderFrame extends JFrame {
             }
         }
         repaint();
-
-
         countDown();
     }
 

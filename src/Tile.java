@@ -3,7 +3,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class Tile {
-    private final Float CARROT_GROWTH_PROBABILITY = 0.1f;
+    // TODO: make it customizable by user
+    private final Float CARROT_GROWTH_PROBABILITY = 0.05f;
 
     public final ExtendedReentrantReadWriteLock lock = new ExtendedReentrantReadWriteLock(true);
 
@@ -25,9 +26,9 @@ public class Tile {
         assert isRWLockedByCurrentThread();
 
         if (this.state == TileState.EMPTY) {
-            return Color.WHITE;
+            return Color.DARK_GRAY;
         } else if (this.state == TileState.DAMAGED) {
-            return Color.RED;
+            return Color.BLACK;
         } else if (this.state == TileState.CARROT_PLANTED) {
             return new Color(255, 69, 0, 50);
         } else if (this.state == TileState.CARROT_GROWTH_1) {
@@ -37,7 +38,7 @@ public class Tile {
         } else if (this.state == TileState.CARROT_MATURE) {
             return new Color(255, 69, 0, 200);
         } else {
-            return Color.BLACK;
+            return Color.WHITE;
         }
     }
 
@@ -60,8 +61,21 @@ public class Tile {
         return this.coordinates;
     }
 
+    public boolean isCarrotOnTile() {
+        assert lock.isRWLockedByCurrentThread();
+        return this.state == TileState.CARROT_MATURE || this.state == TileState.CARROT_GROWTH_2 || this.state == TileState.CARROT_GROWTH_1 || this.state == TileState.CARROT_PLANTED || (this.carrot_coverage > 0.0f && this.state == TileState.DAMAGED);
+    }
+
+    private boolean isRabbitOnTile() {
+        assert lock.isRWLockedByCurrentThread();
+        return this.actors.stream().anyMatch(actor -> actor instanceof Rabbit);
+    }
+
     public void tickCarrotGrowth() {
         assert lock.isWriteLockedByCurrentThread();
+        if (isRabbitOnTile()) {
+            return;
+        }
         if (state == TileState.EMPTY || state == TileState.DAMAGED || state == TileState.CARROT_MATURE) {
             // pass
         } else if (state == TileState.CARROT_PLANTED) {
@@ -103,6 +117,9 @@ public class Tile {
 
     public void plantCarrot() {
         assert lock.isWriteLockedByCurrentThread();
+        if (this.state != TileState.EMPTY) {
+            return;
+        }
         this.setState(TileState.CARROT_PLANTED);
         this.carrot_coverage = 1.0f;
     }
@@ -111,7 +128,7 @@ public class Tile {
         assert lock.isWriteLockedByCurrentThread();
         // tile is locked so we don't have to worry
         //noinspection NonAtomicOperationOnVolatileField
-        this.carrot_coverage -= 0.1f;
+        this.carrot_coverage -= 0.2f;
         if (this.carrot_coverage < 0.0f) {
             this.carrot_coverage = 0.0f;
         }
@@ -124,7 +141,7 @@ public class Tile {
         assert lock.isWriteLockedByCurrentThread();
         assert this.actors.contains(rabbit);
         // the rabbit is here, check if it is alive
-        if (rabbit == null || !rabbit.getIsAlive()) {
+        if (rabbit == null || rabbit.getIsDead()) {
             // the rabbit is dead, stop chasing it
             // TODO: implement dog
             return false;

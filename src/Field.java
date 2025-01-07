@@ -2,17 +2,27 @@ import java.awt.*;
 import java.util.LinkedList;
 import java.util.List;
 
-public class Field {
+public class Field extends ThreadAbstract {
     private final Tile[][] tiles;
     private final ExtendedReentrantReadWriteLock lock = new ExtendedReentrantReadWriteLock(true);
 
     public Field(int rows, int cols) {
-        tiles = new Tile[rows][cols];
+        Tile[][] tiles = new Tile[rows][cols];
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
                 tiles[i][j] = new Tile(i, j);
             }
         }
+        this.tiles = tiles;
+        // start thread
+        super();
+    }
+
+    @Override
+    public void tick() {
+        lock.writeLock().lock();
+        growCarrots();
+        lock.writeLock().unlock();
     }
 
     public void renderLock() {
@@ -32,15 +42,27 @@ public class Field {
     }
 
     public Color getTileBackgroundColor(Coordinates coordinates) {
-        assert lock.isReadLockedByCurrentThread();
+        assert lock.isRWLockedByCurrentThread();
         validatePosition(coordinates.y, coordinates.x);
-        return tiles[coordinates.y][coordinates.x].getBackgroundColor();
+
+        Tile tile = getTile(coordinates);
+        tile.lock.readLock().lock();
+        Color color = tile.getBackgroundColor();
+        tile.lock.readLock().unlock();
+
+        return color;
     }
 
     public List<ActorAbstract> getActors(Coordinates coordinates) {
-        assert lock.isReadLockedByCurrentThread();
+        assert lock.isRWLockedByCurrentThread();
         validatePosition(coordinates.y, coordinates.x);
-        return tiles[coordinates.y][coordinates.x].getActors();
+
+        Tile tile = getTile(coordinates);
+        tile.lock.readLock().lock();
+        List<ActorAbstract> actors = tile.getActors();
+        tile.lock.readLock().unlock();
+
+        return actors;
     }
 
     private void validatePosition(int row, int col) {
@@ -119,18 +141,20 @@ public class Field {
 
     public void plantCarrot(Coordinates coordinates) {
         assert lock.isWriteLockedByCurrentThread();
-        getTile(coordinates).lock.writeLock().lock();
-        getTile(coordinates).plantCarrot();
-        getTile(coordinates).lock.writeLock().unlock();
+        Tile tile = getTile(coordinates);
+        tile.lock.writeLock().lock();
+        tile.plantCarrot();
+        tile.lock.writeLock().unlock();
     }
 
     public void growCarrots() {
         assert lock.isWriteLockedByCurrentThread();
         for (int i = 0; i < getRows(); i++) {
             for (int j = 0; j < getCols(); j++) {
-                getTile(new Coordinates(j, i)).lock.writeLock().lock();
-                getTile(new Coordinates(j, i)).tickCarrotGrowth();
-                getTile(new Coordinates(j, i)).lock.writeLock().unlock();
+                Tile tile = getTile(new Coordinates(j, i));
+                tile.lock.writeLock().lock();
+                tile.tickCarrotGrowth();
+                tile.lock.writeLock().unlock();
             }
         }
     }

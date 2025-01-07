@@ -5,8 +5,7 @@ public class Rabbit extends ActorAbstract {
     public ReentrantLock rabbit_mutex = new ReentrantLock();
 
     public Rabbit(Field field) {
-        super(field, "rabbit");
-        this.coordinates = field.getRandomCoordinates();
+        super(field);
     }
 
     @Override
@@ -18,13 +17,18 @@ public class Rabbit extends ActorAbstract {
             field.simulationUnlock();
             return;
         }
+        Tile tile = field.getTile(this.coordinates);
+//        tile.lock.writeLock();
+//        tile.isCarrotOnTile();
+
         randomWalk();
         rabbit_mutex.unlock();
         field.simulationUnlock();
     }
 
-    public boolean getIsAlive() {
-        return isAlive;
+    public boolean getIsDead() {
+        assert rabbit_mutex.isHeldByCurrentThread();
+        return !isAlive;
     }
 
     public void turnDead() {
@@ -32,5 +36,11 @@ public class Rabbit extends ActorAbstract {
         isAlive = false;
     }
 
-    private void eat() {};
+    private void eat() {
+        assert field.isRWLockedByCurrentThread();
+        assert rabbit_mutex.isHeldByCurrentThread();
+        Tile tile = field.getTile(this.getCoordinates());
+        assert tile.lock.isWriteLocked();
+        tile.eatCarrot();
+    };
 }
