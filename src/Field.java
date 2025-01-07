@@ -1,6 +1,7 @@
 import java.awt.*;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 
 public class Field extends ThreadAbstract {
     private final Tile[][] tiles;
@@ -42,7 +43,7 @@ public class Field extends ThreadAbstract {
     }
 
     public Color getTileBackgroundColor(Coordinates coordinates) {
-        assert lock.isRWLockedByCurrentThread();
+        assert isRWLockedByCurrentThread();
         validatePosition(coordinates.y, coordinates.x);
 
         Tile tile = getTile(coordinates);

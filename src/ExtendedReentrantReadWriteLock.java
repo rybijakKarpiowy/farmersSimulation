@@ -1,3 +1,4 @@
+import java.util.Objects;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.HashSet;
 
@@ -18,7 +19,7 @@ public class ExtendedReentrantReadWriteLock extends ReentrantReadWriteLock {
     }
 
     public boolean isRWLockedByCurrentThread() {
-        return isReadLockedByCurrentThread() || isWriteLockedByCurrentThread();
+        return isReadLockedByCurrentThread() || isWriteLockedByCurrentThread() || Objects.equals(Thread.currentThread().getName(), "AWT-EventQueue-0");
     }
 
     public class ExtendedReadLock extends ReadLock {

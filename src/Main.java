@@ -12,9 +12,11 @@ public class Main {
         for (int i = actors.size() - 1; i >= 0; i--) {
             ActorAbstract actor = actors.get(i);
             if (actor instanceof Rabbit rabbit) {
+                rabbit.rabbit_mutex.lock();
                 if (rabbit.getIsDead()) {
                     actors.remove(i);
                 }
+                rabbit.rabbit_mutex.unlock();
             }
         }
     }
