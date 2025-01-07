@@ -6,9 +6,11 @@ import java.util.concurrent.CountDownLatch;
 
 public class RenderFrame extends JFrame {
     private final JPanel[][] panels;
+    private final Field field;
 
-    public RenderFrame(int rows, int cols) {
+    public RenderFrame(int rows, int cols, Field field) {
         super("Render");
+        this.field = field;
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new GridLayout(rows, cols));
@@ -22,6 +24,7 @@ public class RenderFrame extends JFrame {
                 add(panels[i][j]);
             }
         }
+        updateFields();
 
         setVisible(true);
     }
@@ -44,6 +47,24 @@ public class RenderFrame extends JFrame {
         panels[row][col].removeAll();
         panels[row][col].revalidate();
         panels[row][col].repaint();
+    }
+
+    public void updateFields() {
+        field.renderLock();
+        for (int i = 0; i < field.getRows(); i++) {
+            for (int j = 0; j < field.getCols(); j++) {
+                clearPanel(i, j);
+                setColor(i, j, field.getTileBackgroundColor(new Coordinates(i, j)));
+
+                for (ActorAbstract actor : field.getActors(new Coordinates(i, j))) {
+                    if (actor instanceof Rabbit) {
+                        addRabbit(i, j);
+                    }
+                }
+            }
+        }
+        repaint();
+        field.renderUnlock();
     }
 
 }
