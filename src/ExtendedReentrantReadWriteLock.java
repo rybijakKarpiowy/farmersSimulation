@@ -1,9 +1,11 @@
 import java.util.Objects;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.HashSet;
 
 public class ExtendedReentrantReadWriteLock extends ReentrantReadWriteLock {
     private final HashSet<Thread> readerThreads = new HashSet<Thread>();
+    private final ReentrantLock lock = new ReentrantLock();
 
     public ExtendedReentrantReadWriteLock(boolean fair) {
         super(fair);
@@ -15,7 +17,10 @@ public class ExtendedReentrantReadWriteLock extends ReentrantReadWriteLock {
     }
 
     public boolean isReadLockedByCurrentThread() {
-        return readerThreads.contains(Thread.currentThread());
+        lock.lock();
+        boolean out = readerThreads.contains(Thread.currentThread());
+        lock.unlock();
+        return out;
     }
 
     public boolean isRWLockedByCurrentThread() {
@@ -30,13 +35,17 @@ public class ExtendedReentrantReadWriteLock extends ReentrantReadWriteLock {
         @Override
         public void lock() {
             super.lock();
+            lock.lock();
             readerThreads.add(Thread.currentThread());
+            lock.unlock();
         }
 
         @Override
         public void unlock() {
-            super.unlock();
+            lock.lock();
             readerThreads.remove(Thread.currentThread());
+            lock.unlock();
+            super.unlock();
         }
     }
 }

@@ -18,8 +18,8 @@ public class Main {
         }
 
         while (true) {
-            renderFrame.resetLatch();
             field.renderLock();
+            renderFrame.resetLatch();
             try {
                 SwingUtilities.invokeLater(renderFrame::updateFields);
             } finally {

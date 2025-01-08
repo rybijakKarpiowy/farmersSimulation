@@ -154,7 +154,6 @@ public class Tile {
         }
         // the rabbit is here and it is alive
         rabbit.turnDead();
-        System.out.println("Rabbit killed");
         // remove the rabbit from the tile
         this.removeActor(rabbit);
         // stop chasing the rabbit

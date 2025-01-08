@@ -1,6 +1,6 @@
 public abstract class ThreadAbstract extends Thread {
     protected volatile boolean running = true;
-    static private final int tickInterval = 500;
+    static private final int tickInterval = 100;
 
     public ThreadAbstract() {
         this.start();

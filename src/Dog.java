@@ -17,7 +17,6 @@ public class Dog extends ActorAbstract {
         dog_mutex.lock();
 
         if (tile.hasRabbit(target) != null) {
-            System.out.println("Dog has rabbit");
             killRabbit();
         } else if (target != null) {
             chaseRabbit();
