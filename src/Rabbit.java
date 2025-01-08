@@ -1,7 +1,7 @@
 import java.util.concurrent.locks.ReentrantLock;
 
 public class Rabbit extends ActorAbstract {
-    private boolean isAlive = true;
+    private volatile boolean isAlive = true;
     public ReentrantLock rabbit_mutex = new ReentrantLock();
 
     public Rabbit(Field field) {
@@ -11,24 +11,25 @@ public class Rabbit extends ActorAbstract {
     @Override
     public void tick() {
         field.simulationLock();
+        Tile tile = field.getTile(this.coordinates);
+        tile.lock.writeLock().lock();
         rabbit_mutex.lock();
+
         if (!isAlive) {
             rabbit_mutex.unlock();
+            tile.lock.writeLock().unlock();
             field.simulationUnlock();
             return;
         }
 
-        Tile tile = field.getTile(this.coordinates);
-
-        tile.lock.writeLock().lock();
         if (tile.canRabbitsEat()) {
             eat();
         } else {
             randomWalk();
         }
-        tile.lock.writeLock().unlock();
 
         rabbit_mutex.unlock();
+        tile.lock.writeLock().unlock();
         field.simulationUnlock();
     }
 

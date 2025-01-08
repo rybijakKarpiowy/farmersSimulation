@@ -1,11 +1,11 @@
 import java.util.List;
 
 public class Farmer extends ActorAbstract {
-//    private final Dog dog;
+    private final Dog dog;
 
     public Farmer(Field field) {
         super(field);
-//        dog = new Dog(field);
+        dog = new Dog(field, this.coordinates);
     }
 
     @Override
@@ -43,8 +43,14 @@ public class Farmer extends ActorAbstract {
 
     private void lookAround() {
         assert field.isRWLockedByCurrentThread();
-        // TODO: lock dog, check if it chases something, if yes return, unlock dog
-        List<Tile> tiles = field.getTilesInViewRange(this.coordinates);
+        dog.dog_mutex.lock();
+        if (dog.getTarget() != null) {
+            dog.dog_mutex.unlock();
+            return;
+        }
+        dog.dog_mutex.unlock();
+
+        List<Tile> tiles = field.getTilesInViewRange(this.coordinates, 5);
         Rabbit rabbit = null;
         for (Tile tile : tiles) {
             tile.lock.readLock().lock();
@@ -55,8 +61,11 @@ public class Farmer extends ActorAbstract {
             }
         }
         if (rabbit != null) {
-            // TODO: lock dog, set target, unlock dog
-            // dog.selectTarget(rabbit);
+            dog.dog_mutex.lock();
+            if (dog.getTarget() == null) {
+                dog.setTarget(rabbit);
+            }
+            dog.dog_mutex.unlock();
         }
     }
 }

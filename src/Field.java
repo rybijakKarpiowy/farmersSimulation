@@ -1,11 +1,11 @@
 import java.awt.*;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Objects;
 
 public class Field extends ThreadAbstract {
     private final Tile[][] tiles;
     private final ExtendedReentrantReadWriteLock lock = new ExtendedReentrantReadWriteLock(true);
+    private final static float RABBIT_SPAWN_PROBABILITY = 0.2f;
 
     public Field(int rows, int cols) {
         Tile[][] tiles = new Tile[rows][cols];
@@ -23,6 +23,9 @@ public class Field extends ThreadAbstract {
     public void tick() {
         lock.writeLock().lock();
         growCarrots();
+        if (Math.random() < RABBIT_SPAWN_PROBABILITY) {
+            addRabbit();
+        }
         lock.writeLock().unlock();
     }
 
@@ -124,6 +127,7 @@ public class Field extends ThreadAbstract {
     public void moveActor(ActorAbstract actor, Coordinates new_coordinates) {
         assert isRWLockedByCurrentThread();
         Coordinates old_coordinates = actor.getCoordinates();
+        assert Math.abs(old_coordinates.x - new_coordinates.x) + Math.abs(old_coordinates.y - new_coordinates.y) == 1;
         // lock the tile that the actor is currently on and the tile that the actor is moving to
         // in pre-specified order to prevent deadlocks
         writeLockTiles(actor.getCoordinates(), new_coordinates);
@@ -152,32 +156,32 @@ public class Field extends ThreadAbstract {
         }
     }
 
-    public Rabbit addRabbit() {
-        Rabbit rabbit = new Rabbit(this);
-        getTile(rabbit.getCoordinates()).addActor(rabbit);
-        return rabbit;
+    public void addRabbit() {
+        new Rabbit(this);
     }
 
-    public boolean killRabbit(Rabbit rabbit
-//                           , Dog dog // TODO: implement dog
-    ) {
+    public void killRabbit(Rabbit rabbit, Dog dog) {
         assert isRWLockedByCurrentThread();
-        rabbit.rabbit_mutex.lock();
+        assert rabbit != null;
         Tile tile = getTile(rabbit.getCoordinates());
-        tile.lock.writeLock().lock();
-        boolean killed = tile.killRabbitOnTile(rabbit);
-        tile.lock.writeLock().unlock();
+        assert tile.lock.isWriteLocked();
+        assert dog.dog_mutex.isHeldByCurrentThread();
+        rabbit.rabbit_mutex.lock();
+        boolean shouldClearTarget = tile.killRabbitOnTile(rabbit);
+        assert shouldClearTarget;
+        dog.removeTarget();
         rabbit.rabbit_mutex.unlock();
-        return killed;
     }
 
-    public List<Tile> getTilesInViewRange(Coordinates coordinates) {
-        // view range is 5 (11x11 diamond)
+    public List<Tile> getTilesInViewRange(Coordinates coordinates, int range) {
         assert isRWLockedByCurrentThread();
         List<Tile> tiles = new LinkedList<Tile>();
-        for (int i = coordinates.y - 5; i <= coordinates.y + 5; i++) {
-            for (int j = coordinates.x - 5; j <= coordinates.x + 5; j++) {
-                if (i >= 0 && i < getRows() && j >= 0 && j < getCols() && Math.abs(i - coordinates.y) + Math.abs(j - coordinates.x) <= 5) {
+        for (int i = coordinates.y - range; i <= coordinates.y + range; i++) {
+            for (int j = coordinates.x - range; j <= coordinates.x + range; j++) {
+                if (i >= 0 && i < getRows() && j >= 0 && j < getCols() && Math.abs(i - coordinates.y) + Math.abs(j - coordinates.x) <= range) {
+                    if (j == coordinates.x && i == coordinates.y) {
+                        continue;
+                    }
                     tiles.add(getTile(new Coordinates(j, i)));
                 }
             }

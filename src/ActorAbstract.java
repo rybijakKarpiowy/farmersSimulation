@@ -1,8 +1,8 @@
 import java.util.List;
 
 public abstract class ActorAbstract extends ThreadAbstract {
-    protected Coordinates coordinates;
-    protected Field field;
+    protected volatile Coordinates coordinates;
+    protected final Field field;
 
     public ActorAbstract(Field field) {
         Coordinates coordinates = field.getRandomCoordinates();

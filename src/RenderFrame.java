@@ -7,7 +7,7 @@ import java.util.concurrent.CountDownLatch;
 public class RenderFrame extends JFrame {
     private final JPanel[][] panels;
     private final Field field;
-    private CountDownLatch latch = new CountDownLatch(1);
+    private volatile CountDownLatch latch = new CountDownLatch(1);
 
     public RenderFrame(int rows, int cols, Field field) {
         super("Render");
@@ -33,12 +33,8 @@ public class RenderFrame extends JFrame {
         setVisible(true);
     }
 
-    public void await() {
-        try {
-            latch.await();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+    public void await() throws InterruptedException {
+        latch.await();
     }
 
     public void countDown() {
@@ -73,11 +69,23 @@ public class RenderFrame extends JFrame {
         panels[row][col].repaint();
     }
 
+    private void addDog(int row, int col) {
+        // green dot
+        JPanel dog = new JPanel();
+        dog.setBackground(Color.GREEN);
+        dog.setBorder(new EmptyBorder(10, 10, 10, 10));
+        panels[row][col].add(dog);
+        panels[row][col].revalidate();
+        panels[row][col].repaint();
+    }
+
     private void addActor(ActorAbstract actor, int row, int col) {
         if (actor instanceof Rabbit) {
             addRabbit(row, col);
         } else if (actor instanceof Farmer) {
             addFarmer(row, col);
+        } else if (actor instanceof Dog) {
+            addDog(row, col);
         }
     }
 

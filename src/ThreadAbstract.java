@@ -1,10 +1,8 @@
 public abstract class ThreadAbstract extends Thread {
-    private final Integer threadId;
-    protected boolean running = true;
+    protected volatile boolean running = true;
     static private final int tickInterval = 500;
 
     public ThreadAbstract() {
-        this.threadId = this.hashCode();
         this.start();
     }
 
@@ -12,7 +10,6 @@ public abstract class ThreadAbstract extends Thread {
         assert tile.lock.isWriteLocked();
         assert this instanceof ActorAbstract;
         tile.addActor((ActorAbstract) this);
-        this.threadId = this.hashCode();
         this.start();
     }
 
@@ -34,8 +31,4 @@ public abstract class ThreadAbstract extends Thread {
     }
 
     public abstract void tick();
-
-    public Integer getThreadId() {
-        return threadId;
-    }
 }

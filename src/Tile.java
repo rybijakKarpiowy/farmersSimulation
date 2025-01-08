@@ -5,13 +5,10 @@ import java.util.List;
 public class Tile {
     // TODO: make it customizable by user
     private final Float CARROT_GROWTH_PROBABILITY = 0.05f;
-
     public final ExtendedReentrantReadWriteLock lock = new ExtendedReentrantReadWriteLock(true);
-
     private volatile TileState state = TileState.EMPTY;
     private volatile Float carrot_coverage = 0.0f;
     private final Coordinates coordinates;
-
     private final List<ActorAbstract> actors = new LinkedList<ActorAbstract>();
 
     public Tile(Integer y, Integer x) {
@@ -145,29 +142,37 @@ public class Tile {
         }
     }
 
-    public boolean killRabbitOnTile(Rabbit rabbit
-//            , Dog dog // TODO: implement dog
-    ) {
+    public boolean killRabbitOnTile(Rabbit rabbit) {
         assert lock.isWriteLockedByCurrentThread();
         assert this.actors.contains(rabbit);
-        // the rabbit is here, check if it is alive
-        if (rabbit == null || rabbit.getIsDead()) {
-            // the rabbit is dead, stop chasing it
-            // TODO: implement dog
-            return false;
-        }
+        assert rabbit != null;
         assert rabbit.rabbit_mutex.isHeldByCurrentThread();
+        // the rabbit is here, check if it is alive
+        if (rabbit.getIsDead()) {
+            // the rabbit is dead, stop chasing it
+            return true;
+        }
         // the rabbit is here and it is alive
         rabbit.turnDead();
+        System.out.println("Rabbit killed");
         // remove the rabbit from the tile
         this.removeActor(rabbit);
         // stop chasing the rabbit
-        // TODO: implement dog
         return true;
     }
 
+    public Rabbit hasRabbit(Rabbit target) {
+        assert lock.isRWLockedByCurrentThread();
+        for (ActorAbstract actor : this.actors) {
+            if (actor == target) {
+                return (Rabbit) actor;
+            }
+        }
+        return null;
+    }
+
     public Rabbit hasRabbit() {
-        assert lock.isReadLockedByCurrentThread();
+        assert lock.isRWLockedByCurrentThread();
         for (ActorAbstract actor : this.actors) {
             if (actor instanceof Rabbit) {
                 return (Rabbit) actor;
