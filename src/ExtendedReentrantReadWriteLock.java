@@ -16,6 +16,11 @@ public class ExtendedReentrantReadWriteLock extends ReentrantReadWriteLock {
         return new ExtendedReadLock(this);
     }
 
+    @Override
+    public WriteLock writeLock() {
+        return new ExtendedWriteLock(this);
+    }
+
     public boolean isReadLockedByCurrentThread() {
         lock.lock();
         boolean out = readerThreads.contains(Thread.currentThread());
@@ -34,6 +39,8 @@ public class ExtendedReentrantReadWriteLock extends ReentrantReadWriteLock {
 
         @Override
         public void lock() {
+            assert !isWriteLockedByCurrentThread();
+            assert !isReadLockedByCurrentThread();
             super.lock();
             lock.lock();
             readerThreads.add(Thread.currentThread());
@@ -42,9 +49,31 @@ public class ExtendedReentrantReadWriteLock extends ReentrantReadWriteLock {
 
         @Override
         public void unlock() {
+            assert !isWriteLockedByCurrentThread();
+            assert isReadLockedByCurrentThread();
             lock.lock();
             readerThreads.remove(Thread.currentThread());
             lock.unlock();
+            super.unlock();
+        }
+    }
+
+    public class ExtendedWriteLock extends WriteLock {
+        ExtendedWriteLock(ReentrantReadWriteLock lock) {
+            super(lock);
+        }
+
+        @Override
+        public void lock() {
+            assert !isWriteLockedByCurrentThread();
+            assert !isReadLockedByCurrentThread();
+            super.lock();
+        }
+
+        @Override
+        public void unlock() {
+            assert isWriteLockedByCurrentThread();
+            assert !isReadLockedByCurrentThread();
             super.unlock();
         }
     }

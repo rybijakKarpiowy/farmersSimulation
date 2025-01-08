@@ -9,7 +9,11 @@ public abstract class ActorAbstract extends ThreadAbstract {
         this.field = field;
         this.coordinates = coordinates;
 
-        field.simulationLock();
+        boolean shouldUnlock = false;
+        if (!field.isRWLockedByCurrentThread()) {
+            field.simulationLock();
+            shouldUnlock = true;
+        }
         Tile tile = field.getTile(coordinates);
         tile.lock.writeLock().lock();
 
@@ -17,7 +21,9 @@ public abstract class ActorAbstract extends ThreadAbstract {
         super(tile);
 
         tile.lock.writeLock().unlock();
-        field.simulationUnlock();
+        if (shouldUnlock) {
+            field.simulationUnlock();
+        }
     }
 
     public ActorAbstract(Field field, Coordinates coordinates) {
