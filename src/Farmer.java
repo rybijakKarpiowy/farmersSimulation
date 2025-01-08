@@ -49,6 +49,8 @@ public class Farmer extends ActorAbstract {
             return;
         }
         dog.dog_mutex.unlock();
+        Tile farmerTile = field.getTile(coordinates);
+        farmerTile.lock.writeLock().unlock();
 
         List<Tile> tiles = field.getTilesInViewRange(this.coordinates, 5);
         Rabbit rabbit = null;
@@ -60,6 +62,7 @@ public class Farmer extends ActorAbstract {
                 break;
             }
         }
+        farmerTile.lock.writeLock().lock();
         if (rabbit != null) {
             dog.dog_mutex.lock();
             if (dog.getTarget() == null) {

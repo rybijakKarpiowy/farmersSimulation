@@ -64,6 +64,9 @@ public class Dog extends ActorAbstract {
     private void lookAround() {
         assert field.isRWLockedByCurrentThread();
         assert dog_mutex.isHeldByCurrentThread();
+        dog_mutex.unlock();
+        Tile dogTile = field.getTile(coordinates);
+        dogTile.lock.writeLock().unlock();
         List<Tile> tiles = field.getTilesInViewRange(this.coordinates, 2);
         Rabbit rabbit = null;
         for (Tile tile : tiles) {
@@ -74,6 +77,8 @@ public class Dog extends ActorAbstract {
                 break;
             }
         }
+        dogTile.lock.writeLock().lock();
+        dog_mutex.lock();
         if (rabbit != null) {
             setTarget(rabbit);
         }

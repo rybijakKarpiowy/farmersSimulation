@@ -49,15 +49,6 @@ public class Tile {
         return this.state;
     }
 
-    public Float getCarrotCoverage() {
-        assert isRWLockedByCurrentThread();
-        return this.carrot_coverage;
-    }
-
-    public Coordinates getCoordinates() {
-        return this.coordinates;
-    }
-
     public boolean canRabbitsEat() {
         assert lock.isRWLockedByCurrentThread();
         return this.state == TileState.CARROT_MATURE || this.state == TileState.CARROT_GROWTH_2 || this.state == TileState.CARROT_GROWTH_1 || this.state == TileState.CARROT_PLANTED || (this.carrot_coverage > 0.0f && this.state == TileState.DAMAGED);
@@ -142,22 +133,14 @@ public class Tile {
         }
     }
 
-    public boolean killRabbitOnTile(Rabbit rabbit) {
+    public void killRabbitOnTile(Rabbit rabbit) {
         assert lock.isWriteLockedByCurrentThread();
         assert this.actors.contains(rabbit);
         assert rabbit != null;
         assert rabbit.rabbit_mutex.isHeldByCurrentThread();
-        // the rabbit is here, check if it is alive
-        if (rabbit.getIsDead()) {
-            // the rabbit is dead, stop chasing it
-            return true;
-        }
-        // the rabbit is here and it is alive
         rabbit.turnDead();
         // remove the rabbit from the tile
         this.removeActor(rabbit);
-        // stop chasing the rabbit
-        return true;
     }
 
     public Rabbit hasRabbit(Rabbit target) {

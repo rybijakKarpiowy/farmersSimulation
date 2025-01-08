@@ -130,13 +130,23 @@ public class Field extends ThreadAbstract {
         assert Math.abs(old_coordinates.x - new_coordinates.x) + Math.abs(old_coordinates.y - new_coordinates.y) == 1;
         // lock the tile that the actor is currently on and the tile that the actor is moving to
         // in pre-specified order to prevent deadlocks
+        if (actor instanceof Rabbit) {
+            ((Rabbit) actor).rabbit_mutex.unlock();
+        } else if (actor instanceof Dog) {
+            ((Dog) actor).dog_mutex.unlock();
+        }
+        getTile(old_coordinates).lock.writeLock().unlock();
         writeLockTiles(actor.getCoordinates(), new_coordinates);
+        if (actor instanceof Rabbit) {
+            ((Rabbit) actor).rabbit_mutex.lock();
+        } else if (actor instanceof Dog) {
+            ((Dog) actor).dog_mutex.lock();
+        }
         // move the actor
         getTile(actor.getCoordinates()).removeActor(actor);
         getTile(new_coordinates).addActor(actor);
         actor.setCoordinates(new_coordinates);
-        // unlock the tiles
-        getTile(old_coordinates).lock.writeLock().unlock();
+        // unlock the tile
         getTile(new_coordinates).lock.writeLock().unlock();
     }
 
@@ -167,8 +177,7 @@ public class Field extends ThreadAbstract {
         assert tile.lock.isWriteLocked();
         assert dog.dog_mutex.isHeldByCurrentThread();
         rabbit.rabbit_mutex.lock();
-        boolean shouldClearTarget = tile.killRabbitOnTile(rabbit);
-        assert shouldClearTarget;
+        tile.killRabbitOnTile(rabbit);
         dog.removeTarget();
         rabbit.rabbit_mutex.unlock();
     }
@@ -179,9 +188,6 @@ public class Field extends ThreadAbstract {
         for (int i = coordinates.y - range; i <= coordinates.y + range; i++) {
             for (int j = coordinates.x - range; j <= coordinates.x + range; j++) {
                 if (i >= 0 && i < getRows() && j >= 0 && j < getCols() && Math.abs(i - coordinates.y) + Math.abs(j - coordinates.x) <= range) {
-                    if (j == coordinates.x && i == coordinates.y) {
-                        continue;
-                    }
                     tiles.add(getTile(new Coordinates(j, i)));
                 }
             }
