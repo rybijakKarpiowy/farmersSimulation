@@ -1,9 +1,13 @@
+import javax.imageio.ImageIO;
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import javax.swing.plaf.basic.BasicBorders;
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 
+@SuppressWarnings("ALL")
 public class RenderFrame extends JFrame {
     private final JPanel[][] panels;
     private final Field field;
@@ -50,33 +54,39 @@ public class RenderFrame extends JFrame {
     }
 
     private void addRabbit(int row, int col) {
-        // blue dot
-        JPanel rabbit = new JPanel();
-        rabbit.setBackground(Color.BLUE);
-        rabbit.setBorder(new EmptyBorder(10, 10, 10, 10));
-        panels[row][col].add(rabbit);
-        panels[row][col].revalidate();
-        panels[row][col].repaint();
+        try {
+            BufferedImage originalImage = ImageIO.read(new File("src/images/bunny.png"));
+            addImagePanel(row, col, originalImage);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void addFarmer(int row, int col) {
-        // pink dot
-        JPanel farmer = new JPanel();
-        farmer.setBackground(Color.PINK);
-        farmer.setBorder(new EmptyBorder(10, 10, 10, 10));
-        panels[row][col].add(farmer);
+        try {
+            BufferedImage originalImage = ImageIO.read(new File("src/images/farmer.png"));
+            addImagePanel(row, col, originalImage);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void addImagePanel(int row, int col, BufferedImage originalImage) {
+        Image scaledImage = originalImage.getScaledInstance(20, 20, Image.SCALE_SMOOTH);
+        ImageIcon rabbitIcon = new ImageIcon(scaledImage);
+        JLabel rabbitLabel = new JLabel(rabbitIcon);
+        panels[row][col].add(rabbitLabel);
         panels[row][col].revalidate();
         panels[row][col].repaint();
     }
 
     private void addDog(int row, int col) {
-        // green dot
-        JPanel dog = new JPanel();
-        dog.setBackground(Color.GREEN);
-        dog.setBorder(new EmptyBorder(10, 10, 10, 10));
-        panels[row][col].add(dog);
-        panels[row][col].revalidate();
-        panels[row][col].repaint();
+        try {
+            BufferedImage originalImage = ImageIO.read(new File("src/images/dog.png"));
+            addImagePanel(row, col, originalImage);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void addActor(ActorAbstract actor, int row, int col) {
