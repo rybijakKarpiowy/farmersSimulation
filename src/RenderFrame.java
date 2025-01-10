@@ -16,7 +16,7 @@ public class RenderFrame extends JFrame {
     public RenderFrame(int rows, int cols, Field field) {
         super("Render");
         this.field = field;
-        setSize(800, 600);
+        setSize(800, 800);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new GridLayout(rows, cols));
 

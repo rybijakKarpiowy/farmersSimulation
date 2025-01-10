@@ -1,0 +1,19 @@
+Window
+Height: 800
+Width: 800
+
+Grid
+Height: 10
+Width: 10
+
+Farmer
+Count: 5
+Sow_time: 5
+Repairing_time: 5
+
+Carrot
+Grow_time: 3
+
+Rabbit
+Count: 5
+Spawn_probability: 0.5
