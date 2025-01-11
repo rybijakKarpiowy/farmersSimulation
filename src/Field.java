@@ -7,10 +7,10 @@ public class Field extends ThreadAbstract {
     private final ExtendedReentrantReadWriteLock lock = new ExtendedReentrantReadWriteLock(true);
     private final static float RABBIT_SPAWN_PROBABILITY = 0.2f;
 
-    public Field(int rows, int cols) {
-        Tile[][] tiles = new Tile[rows][cols];
-        for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < cols; j++) {
+    public Field(int size) {
+        Tile[][] tiles = new Tile[size][size];
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
                 tiles[i][j] = new Tile(i, j);
             }
         }
@@ -95,7 +95,7 @@ public class Field extends ThreadAbstract {
 
     public List<Coordinates> getNeighbors(Coordinates coordinates) {
         assert isRWLockedByCurrentThread();
-        List<Coordinates> neighbors = new LinkedList<Coordinates>();
+        List<Coordinates> neighbors = new LinkedList<>();
         if (coordinates.x > 0) {
             neighbors.add(new Coordinates(coordinates.x - 1, coordinates.y));
         }
@@ -184,7 +184,7 @@ public class Field extends ThreadAbstract {
 
     public List<Tile> getTilesInViewRange(Coordinates coordinates, int range) {
         assert isRWLockedByCurrentThread();
-        List<Tile> tiles = new LinkedList<Tile>();
+        List<Tile> tiles = new LinkedList<>();
         for (int i = coordinates.y - range; i <= coordinates.y + range; i++) {
             for (int j = coordinates.x - range; j <= coordinates.x + range; j++) {
                 if (i >= 0 && i < getRows() && j >= 0 && j < getCols() && Math.abs(i - coordinates.y) + Math.abs(j - coordinates.x) <= range) {

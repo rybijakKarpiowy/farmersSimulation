@@ -3,8 +3,7 @@ Height: 800
 Width: 800
 
 Grid
-Height: 10
-Width: 10
+Size: 20
 
 Farmer
 Count: 5
