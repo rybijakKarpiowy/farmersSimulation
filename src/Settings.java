@@ -1,135 +1,79 @@
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.Map;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CountDownLatch;
-
+import java.util.Map;
 
 public class Settings {
     private static volatile Settings instance;
-    private final Map<String, Map<String, Object>> sections;
-    private final CountDownLatch initializationLatch;
-    private volatile boolean isInitialized = false;
-    private static String configPath = "default.csv";
+    private Map<String, Map<String, String>> sections = new ConcurrentHashMap<>();
+    private static String configPath = "src/settings/default.csv";
 
     private Settings() {
-        sections = new ConcurrentHashMap<>();
-        initializationLatch = new CountDownLatch(1);
         loadSettings();
     }
 
-    public static void setConfigPath(String path) {
-        if (instance != null) {
-            throw new IllegalStateException("Cannot change config path after Settings initialization");
-        }
+    private Settings(String path) {
         configPath = path;
+        this();
     }
 
     public static Settings getInstance() {
-        Settings result = instance;
-        if (result == null) {
+        if (instance == null) {
             synchronized (Settings.class) {
-                result = instance;
-                if (result == null) {
-                    instance = result = new Settings();
+                if (instance == null) {
+                    instance = new Settings();
                 }
             }
         }
-        try {
-            result.initializationLatch.await();
-        } catch (InterruptedException e) {
-            throw new RuntimeException("Settings initialization interrupted", e);
-        }
-        return result;
+        return instance;
     }
 
     private void loadSettings() {
         try {
-            try (BufferedReader reader = new BufferedReader(new FileReader(configPath))) {
-                String currentSection = null;
-                String line;
-
-                while ((line = reader.readLine()) != null) {
-                    line = line.trim();
-
-                    if (line.isEmpty()) {
-                        continue;
-                    }
-
-                    if (!line.contains(":")) {
-                        currentSection = line;
-                        continue;
-                    }
-
-                    if (currentSection != null) {
-                        String[] parts = line.split(":");
-                        if (parts.length == 2) {
-                            String key = parts[0].trim();
-                            String value = parts[1].trim();
-
-                            try {
-                                if (value.contains(".")) {
-                                    setSetting(currentSection, key, Double.parseDouble(value));
-                                } else {
-                                    setSetting(currentSection, key, Integer.parseInt(value));
-                                }
-                            } catch (NumberFormatException e) {
-                                setSetting(currentSection, key, value);
-                            }
-                        }
-                    }
+            String currentSection = null;
+            for (String line : Files.readAllLines(Paths.get(configPath))) {
+                line = line.trim();
+                if (line.isEmpty()) {
+                    continue;
                 }
-                isInitialized = true;
+
+                if (!line.contains(":")) {
+                    currentSection = line;
+                    sections.put(currentSection, new ConcurrentHashMap<>());
+                } else if (currentSection != null) {
+                    String[] parts = line.split(":", 2);
+                    String key = parts[0].trim();
+                    String value = parts[1].trim();
+                    sections.get(currentSection).put(key, value);
+                }
             }
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to load settings from " + configPath, e);
-        } finally {
-            initializationLatch.countDown();
+        } catch (Exception e) {
+            throw new RuntimeException("Can not read settings: " + configPath);
         }
     }
 
-    public void setSetting(String section, String key, Object value) {
-        checkInitialization();
-        sections.computeIfAbsent(section, k -> new ConcurrentHashMap<>())
-                .put(key, value);
+    public void setSetting(String section, String key, String value) {
+        Map<String, String> sectionMap = sections.computeIfAbsent(section, k -> new ConcurrentHashMap<>());
+        sectionMap.put(key, value);
     }
 
-    public Object getSetting(String section, String key) {
-        checkInitialization();
-        Map<String, Object> sectionMap = sections.get(section);
-        return sectionMap != null ? sectionMap.get(key) : null;
-    }
+    public String getSetting(String section, String key) {
+        Map<String, String> sectionMap = sections.get(section);
 
-    public Object getSetting(String section, String key, Object defaultValue) {
-        checkInitialization();
-        Object value = getSetting(section, key);
-        return value != null ? value : defaultValue;
-    }
-
-    public Map<String, Object> getSection(String section) {
-        checkInitialization();
-        return sections.getOrDefault(section, new ConcurrentHashMap<>());
-    }
-
-    private void checkInitialization() {
-        if (!isInitialized) {
-            throw new IllegalStateException("Settings are not fully initialized yet");
+        if (sectionMap == null) {
+            return null;
         }
+
+        return sectionMap.get(key);
     }
 
-    public boolean hasSection(String section) {
-        checkInitialization();
-        return sections.containsKey(section);
-    }
+    public Map<String, String> getSection(String section) {
+        Map<String, String> sectionMap = sections.get(section);
 
-    public void clearSection(String section) {
-        checkInitialization();
-        sections.remove(section);
-    }
+        if (sectionMap == null) {
+            return new ConcurrentHashMap<>();
+        }
 
-    public void clearAll() {
-        checkInitialization();
-        sections.clear();
+        return sectionMap;
     }
 }

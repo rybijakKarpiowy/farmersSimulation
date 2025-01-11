@@ -12,6 +12,9 @@ public class Main {
         Field field = new Field(25,25);
         RenderFrame renderFrame = new RenderFrame(25, 25, field);
 
+        Settings settings = Settings.getInstance();
+        System.out.println(settings.getSetting("rabbit", "spawn_probability"));
+
         for (int i = 0; i < 10; i++) {
             new Rabbit(field);
             new Farmer(field);
