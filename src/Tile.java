@@ -3,16 +3,21 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class Tile {
-    // TODO: make it customizable by user
-    private final Float CARROT_GROWTH_PROBABILITY = 0.05f;
+    private final Float CARROT_GROWTH_PROBABILITY;
+    private final Float CARROT_PLANT_INCREASE;
+    private final Float CARROT_REPAIR_INCREASE;
     public final ExtendedReentrantReadWriteLock lock = new ExtendedReentrantReadWriteLock(true);
     private volatile TileState state = TileState.EMPTY;
     private volatile Float carrot_coverage = 0.0f;
     private final Coordinates coordinates;
-    private final List<ActorAbstract> actors = new LinkedList<ActorAbstract>();
+    private final List<ActorAbstract> actors = new LinkedList<>();
+    private static final Settings settings = Settings.getInstance();
 
     public Tile(Integer y, Integer x) {
         this.coordinates = new Coordinates(x, y);
+        CARROT_GROWTH_PROBABILITY = Float.parseFloat(settings.getSetting("Carrot", "Grow_probability"));
+        CARROT_PLANT_INCREASE = Float.parseFloat(settings.getSetting("Farmer", "Plant_increase"));
+        CARROT_REPAIR_INCREASE = Float.parseFloat(settings.getSetting("Farmer", "Repair_increase"));
     }
 
     public boolean isRWLockedByCurrentThread() {
@@ -64,9 +69,7 @@ public class Tile {
         if (isRabbitOnTile()) {
             return;
         }
-        if (state == TileState.EMPTY || state == TileState.DAMAGED || state == TileState.CARROT_MATURE) {
-            // pass
-        } else if (state == TileState.CARROT_PLANTED) {
+        if (state == TileState.CARROT_PLANTED) {
             if (Math.random() < CARROT_GROWTH_PROBABILITY) {
                 this.setState(TileState.CARROT_GROWTH_1);
             }
@@ -101,7 +104,7 @@ public class Tile {
         assert this.state == TileState.EMPTY;
         // tile is locked so we don't have to worry
         //noinspection NonAtomicOperationOnVolatileField
-        this.carrot_coverage += 0.25f;
+        this.carrot_coverage += CARROT_PLANT_INCREASE;
         if (this.carrot_coverage >= 1.0f) {
             this.carrot_coverage = 1.0f;
             this.state = TileState.CARROT_PLANTED;
@@ -113,7 +116,7 @@ public class Tile {
         assert this.state == TileState.DAMAGED;
         // tile is locked so we don't have to worry
         //noinspection NonAtomicOperationOnVolatileField
-        this.carrot_coverage += 0.5f;
+        this.carrot_coverage += CARROT_REPAIR_INCREASE;
         if (this.carrot_coverage >= 1.0f) {
             this.carrot_coverage = 1.0f;
             this.state = TileState.CARROT_GROWTH_1;

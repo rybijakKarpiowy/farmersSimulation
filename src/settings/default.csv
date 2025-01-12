@@ -7,11 +7,11 @@ Size: 20
 
 Farmer
 Count: 5
-Sow_time: 5
-Repairing_time: 5
+Plant_increase: 0.2
+Repair_increase: 0.5
 
 Carrot
-Grow_time: 3
+Grow_probability: 0.2
 
 Rabbit
 Count: 5

@@ -5,7 +5,8 @@ import java.util.List;
 public class Field extends ThreadAbstract {
     private final Tile[][] tiles;
     private final ExtendedReentrantReadWriteLock lock = new ExtendedReentrantReadWriteLock(true);
-    private final static float RABBIT_SPAWN_PROBABILITY = 0.2f;
+    private static float RABBIT_SPAWN_PROBABILITY = 0.2f;
+    private final static Settings settings = Settings.getInstance();
 
     public Field(int size) {
         Tile[][] tiles = new Tile[size][size];
@@ -15,6 +16,7 @@ public class Field extends ThreadAbstract {
             }
         }
         this.tiles = tiles;
+        RABBIT_SPAWN_PROBABILITY = Float.parseFloat(settings.getSetting("Rabbit", "Spawn_probability"));
         // start thread
         super();
     }
