@@ -1,21 +1,34 @@
 import javax.swing.*;
-import java.util.LinkedList;
-import java.util.List;
 
 public class Main {
-    static void printUsage() {
-        System.out.println("Usage: java Main <field_size> <farmer_count>");
-        System.out.println("Flags: -c <carrot_growth_probability> -r <rabbit_spawn_probability> --continue");
-    }
 
-    public static void main(String[] args) throws InterruptedException {
-        Field field = new Field(25,25);
-        RenderFrame renderFrame = new RenderFrame(25, 25, field);
+    public static void main() throws InterruptedException {
+        Settings settings = Settings.getInstance();
 
-        for (int i = 0; i < 10; i++) {
+        System.out.println("Do you want to input settings? (y/n)");
+        String input = System.console().readLine();
+        if (input.equals("y") || input.equals("Y")) {
+            InputTaker.InputAndSave();
+            settings.saveSettings();
+        }
+        else {
+            System.out.println("Using default settings");
+        }
+
+        int gridSize = Integer.parseInt(settings.getSetting("Grid", "Size"));
+        Field field = new Field(gridSize);
+
+        int initialRabbitCount = Integer.parseInt(settings.getSetting("Rabbit", "Count"));
+        for (int i = 0; i < initialRabbitCount; i++) {
             new Rabbit(field);
+        }
+
+        int initialFarmerCount = Integer.parseInt(settings.getSetting("Farmer", "Count"));
+        for (int i = 0; i < initialFarmerCount; i++) {
             new Farmer(field);
         }
+
+        RenderFrame renderFrame = new RenderFrame(gridSize, field);
 
         while (true) {
             field.renderLock();

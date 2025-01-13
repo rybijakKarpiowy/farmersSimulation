@@ -13,17 +13,23 @@ public class RenderFrame extends JFrame {
     private final Field field;
     private volatile CountDownLatch latch = new CountDownLatch(1);
 
-    public RenderFrame(int rows, int cols, Field field) {
+    public RenderFrame(int size, Field field) {
         super("Render");
         this.field = field;
-        setSize(800, 600);
+
+        // Set Window Size
+        Settings settings = Settings.getInstance();
+        int windowWidth = Integer.parseInt(settings.getSetting("Window", "Width"));
+        int windowHeight = Integer.parseInt(settings.getSetting("Window", "Height"));
+        setSize(windowWidth, windowHeight);
+
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLayout(new GridLayout(rows, cols));
+        setLayout(new GridLayout(size, size));
 
-        panels = new JPanel[rows][cols];
+        panels = new JPanel[size][size];
 
-        for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < cols; j++) {
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
                 panels[i][j] = new JPanel();
                 panels[i][j].setBorder(new BasicBorders.FieldBorder(Color.BLACK, Color.BLACK, Color.BLACK, Color.BLACK));
                 add(panels[i][j]);

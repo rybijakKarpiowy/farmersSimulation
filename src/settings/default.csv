@@ -1,0 +1,18 @@
+Window
+Height: 800
+Width: 800
+
+Grid
+Size: 20
+
+Farmer
+Count: 5
+Plant_increase: 0.2
+Repair_increase: 0.5
+
+Carrot
+Grow_probability: 0.2
+
+Rabbit
+Count: 5
+Spawn_probability: 0.5
