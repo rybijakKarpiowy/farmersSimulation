@@ -1,0 +1,19 @@
+Window
+Height: 400
+Width: 400
+
+Carrot
+Grow_probability: 0.3
+
+Grid
+Size: 10
+
+Rabbit
+Count: 10
+Spawn_probability: 0.4
+
+Farmer
+Plant_increase: 0.3
+Repair_increase: 0.2
+Count: 5
+

@@ -1,5 +1,7 @@
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.Map;
 
@@ -75,5 +77,22 @@ public class Settings {
         }
 
         return sectionMap;
+    }
+
+    public void saveSettings() {
+        String path = "src/settings/userSettings.csv";
+        try {
+            List<String> lines = new ArrayList<>();
+            for (Map.Entry<String, Map<String, String>> section : sections.entrySet()) {
+                lines.add(section.getKey());
+                for (Map.Entry<String, String> entry : section.getValue().entrySet()) {
+                    lines.add(entry.getKey() + ": " + entry.getValue());
+                }
+                lines.add("");
+            }
+            Files.write(Paths.get(path), lines);
+        } catch (Exception e) {
+            throw new RuntimeException("Can not write settings: " + path);
+        }
     }
 }

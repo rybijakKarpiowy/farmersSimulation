@@ -5,6 +5,16 @@ public class Main {
     public static void main() throws InterruptedException {
         Settings settings = Settings.getInstance();
 
+        System.out.println("Do you want to input settings? (y/n)");
+        String input = System.console().readLine();
+        if (input.equals("y") || input.equals("Y")) {
+            InputTaker.InputAndSave();
+            settings.saveSettings();
+        }
+        else {
+            System.out.println("Using default settings");
+        }
+
         int gridSize = Integer.parseInt(settings.getSetting("Grid", "Size"));
         Field field = new Field(gridSize);
 
