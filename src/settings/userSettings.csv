@@ -1,19 +1,22 @@
 Window
-Height: 400
-Width: 400
+Height: 800
+Width: 800
 
 Carrot
-Grow_probability: 0.3
+Grow_probability: 0.2
 
 Grid
-Size: 10
+Size: 20
 
 Rabbit
 Count: 10
 Spawn_probability: 0.4
 
 Farmer
-Plant_increase: 0.3
+Plant_increase: 0.2
 Repair_increase: 0.2
-Count: 5
+Count: 10
+
+Thread
+Tick_interval: 50
 

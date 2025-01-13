@@ -30,5 +30,9 @@ public class InputTaker {
         settings.setSetting("Rabbit", "Count", System.console().readLine());
         System.out.println("Enter Spawn Probability: ");
         settings.setSetting("Rabbit", "Spawn_probability", System.console().readLine());
+
+        // Thread
+        System.out.println("Enter the thread tick interval: ");
+        settings.setSetting("Thread", "Tick_interval", System.console().readLine());
     }
 }

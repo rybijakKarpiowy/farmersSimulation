@@ -1,6 +1,6 @@
 public abstract class ThreadAbstract extends Thread {
     protected volatile boolean running = true;
-    static private final int tickInterval = 400;
+    static private final int tickInterval = Integer.parseInt(Settings.getInstance().getSetting("Thread", "Tick_interval"));
 
     public ThreadAbstract() {
         this.start();

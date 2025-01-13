@@ -16,3 +16,6 @@ Grow_probability: 0.2
 Rabbit
 Count: 5
 Spawn_probability: 0.1
+
+Thread
+Tick_interval: 200
